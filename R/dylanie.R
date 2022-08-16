@@ -212,21 +212,21 @@ dylanie_model_simple <- function(formula, data, mcmc_len, verbose = F){
   a_tp[5,] <- c(0.905, 1.225, 0.952, 0, 0.626, 0, 0.535, 0)
   a_fp[5,] <- c(0.898, 0.740, 1.039, 0.618, 1.213, 0, 0.049, 0)
   
-  beta_tp <- cbind(rep(1, N), jags.data$female, jags.data$distlong) %*% a_tp[1:3,]
-  beta_fp <- cbind(rep(1, N), jags.data$female, jags.data$distlong) %*% a_fp[1:3,]
+  beta_tp <- cbind(rep(1, N), data$female, data$distlong) %*% a_tp[1:3,]
+  beta_fp <- cbind(rep(1, N), data$female, data$distlong) %*% a_fp[1:3,]
   
-  alpha_tp <- cbind(rep(1, N), jags.data$female, jags.data$distlong) %*% rbind(lambda_tp, a_tp[4:5,])
-  alpha_fp <- cbind(rep(1, N), jags.data$female, jags.data$distlong) %*% rbind(lambda_fp, a_fp[4:5,])
+  alpha_tp <- cbind(rep(1, N), data$female, data$distlong) %*% rbind(lambda_tp, a_tp[4:5,])
+  alpha_fp <- cbind(rep(1, N), data$female, data$distlong) %*% rbind(lambda_fp, a_fp[4:5,])
   
-  g_free_ind <- matrix(1, 14, 4)
-  g_free_ind[,1] <- g_free_ind[3,2] <- g_free_ind[6,3] <- g_free_ind[7,3] <- 0
+  g_free_ind <- matrix(1, 16, 4)
+  # g_free_ind[,1] <- g_free_ind[3,2] <- g_free_ind[6,3] <- g_free_ind[7,3] <- 0
   
   term_label <- unlist(attributes(terms(formula))['term.labels'])
   nparam <- length(term_label) + 1
   
-  g_init <- matrix(0, 14, 4)
-  g_init[,1] <- 0
-  g_init[3,2] <- g_init[6,3] <- g_init[7,3] <- -5
+  g_init <- matrix(0, 16, 4)
+  # g_init[,1] <- 0
+  # g_init[3,2] <- g_init[6,3] <- g_init[7,3] <- -5
   initvals <- list(b_tp_init = matrix(0, nparam, 1), b_fp_init = matrix(0, nparam, 1), 
                    g_init = g_init, sig2_tp_init = 1/0.35,
                    sig2_fp_init = 1/0.2, rho_init = 0,
@@ -239,6 +239,15 @@ dylanie_model_simple <- function(formula, data, mcmc_len, verbose = F){
                       initvals$sig2_tp_init, initvals$sig2_fp_init, initvals$rho_init,
                       initvals$e_tp, initvals$e_fp, initvals$e12, data$xi, 
                       beta_tp, alpha_tp, beta_fp, alpha_fp, mcmc_len, verbose)
+  res_cpp <- c(res_cpp, 
+               list("ytp"= data$ytp, 
+                    "yfp"=data$yfp, 
+                    "x_covariates"=x_covariates,
+                    "g_free_ind"=g_free_ind,
+                    "beta_tp"=beta_tp,
+                    "alpha_tp"=alpha_tp,
+                    "beta_fp"=beta_fp,
+                    "alpha_fp"=alpha_fp))
   return(res_cpp)
 }
 
