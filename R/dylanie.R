@@ -218,13 +218,13 @@ dylanie_model_simple <- function(formula, data, mcmc_len, verbose = F){
   alpha_tp <- cbind(rep(1, N), data$female, data$distlong) %*% rbind(lambda_tp, a_tp[4:5,])
   alpha_fp <- cbind(rep(1, N), data$female, data$distlong) %*% rbind(lambda_fp, a_fp[4:5,])
   
-  g_free_ind <- matrix(1, 16, 4)
-  # g_free_ind[,1] <- g_free_ind[3,2] <- g_free_ind[6,3] <- g_free_ind[7,3] <- 0
-  
   term_label <- unlist(attributes(terms(formula))['term.labels'])
   nparam <- length(term_label) + 1
   
-  g_init <- matrix(0, 16, 4)
+  g_free_ind <- matrix(1, nparam, 4)
+  # g_free_ind[,1] <- g_free_ind[3,2] <- g_free_ind[6,3] <- g_free_ind[7,3] <- 0
+  
+  g_init <- matrix(0, nparam, 4)
   # g_init[,1] <- 0
   # g_init[3,2] <- g_init[6,3] <- g_init[7,3] <- -5
   initvals <- list(b_tp_init = matrix(0, nparam, 1), b_fp_init = matrix(0, nparam, 1), 
@@ -303,14 +303,14 @@ dylanie_model_update <- function(dylanie_res, mcmc_len, verbose = F){
               "e_fp_last" = updated_res$e_fp_last,
               "e12_last" = updated_res$e12_last,
               "xi_last" = updated_res$xi_last,
-              "ytp" = updated_res$ytp,
-              "yfp" = updated_res$yfp,
-              "x_covariates" = updated_res$x_covariates,
-              "g_free_ind" = updated_res$g_free_ind,
-              "beta_tp" = updated_res$beta_tp,
-              "alpha_tp" = updated_res$alpha_tp,
-              "beta_fp" = updated_res$beta_fp,
-              "alpha_fp" = updated_res$alpha_fp))
+              "ytp" = dylanie_res$ytp,
+              "yfp" = dylanie_res$yfp,
+              "x_covariates" = dylanie_res$x_covariates,
+              "g_free_ind" = dylanie_res$g_free_ind,
+              "beta_tp" = dylanie_res$beta_tp,
+              "alpha_tp" = dylanie_res$alpha_tp,
+              "beta_fp" = dylanie_res$beta_fp,
+              "alpha_fp" = dylanie_res$alpha_fp))
 }
 
 #' Paralleled full Bayesian estimation for multivariate dyads data analysis (DyLAnIE).
